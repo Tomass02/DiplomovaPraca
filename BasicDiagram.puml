@@ -1,0 +1,32 @@
+@startuml COP
+title COP Architecture
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor "User" as User
+
+rectangle "Client Layer" {
+        component "COP_Wpf" as WPF
+}
+
+rectangle "Service Layer" {
+    component "COP_WS" as WS
+    component "COP_Functions" as COPFN
+    component "COP_Database" as COPDB
+}
+
+rectangle "MSSQL"{
+    database "COP/MAC" as DB
+}
+
+User --> WPF
+WPF --> WS
+WS --> COPFN
+COPFN --> COPDB
+COPDB --> DB
+
+
+
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml COP_Sequence
+title COP OpenSearch vyhladavanie
+
+skinparam shadowing false
+
+actor "User" as User
+
+box "Client Layer"
+    participant "COP_Wpf" as WPF
+end box
+
+box "Service Layer"
+    participant "COP_WS" as WS
+    participant "COP_Functions" as COPFN
+    participant "COP_Database" as COPDB
+end box
+
+box "SearchService"
+    participant "ServiceOpenSearch\nimplementuje ISearch" as SEARCH
+end box
+
+box "Search Infrastructure"
+    participant "Logstash" as LS
+    database "OpenSearch" as OS
+end box
+
+box "MSSQL"
+    database "COP/MAC" as DB
+end box
+
+par Vyhladavanie s fallbackom
+    User -> WPF : Zadanie vyhladavacich kriterii
+    WPF -> WS : Vyhladavanie
+    WS -> COPFN : Vyhladavanie
+    COPFN -> SEARCH : ISearch.Search()
+    SEARCH -> OS : Vyhladavaci dotaz
+    OS --> SEARCH : Vysledky
+    SEARCH --> COPFN : Vysledky
+
+    alt OpenSearch nasiel zaznamy
+        note right of COPFN
+            Pouziju sa vysledky z OpenSearch.
+            Databaza sa nevola.
+        end note
+    else OpenSearch vratil prazdny vysledok
+        COPFN -> COPDB : Vyhladavanie
+        COPDB -> DB : Volanie procedury s kriteriami
+        DB --> COPDB : Vysledky alebo prazdny vysledok
+        COPDB --> COPFN : Vysledky
+    end
+
+    COPFN --> WS : Vysledky vyhladavania
+    WS --> WPF : Odpoved
+    WPF --> User : Zobrazenie vysledkov alebo oznamu o nenajdeni
+
+else Synchronizacia na pozadi
+    loop V nastavenom intervale
+        LS -> DB : Nacitanie zmien (JDBC)
+        DB --> LS : Nove a zmenene zaznamy
+        LS -> OS : Indexovanie a aktualizacia
+        OS --> LS : Vysledok indexovania
+    end
+end
+
+@enduml

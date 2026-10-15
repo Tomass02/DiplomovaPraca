@@ -1,0 +1,50 @@
+@startuml COP
+title COP openSearch Architecture
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor "User" as User
+
+rectangle "Client Layer" {
+    component "COP_Wpf" as WPF
+}
+
+rectangle "Service Layer" {
+    component "COP_WS" as WS
+    component "COP_Functions" as COPFN
+    component "COP_Database" as COPDB
+}
+
+rectangle "SearchService" {
+    interface ISearch as ISearch
+    component "ServiceOpenSearch" as ServiceOpenSearch
+}
+
+rectangle "Search Infrastructure" {
+    component "Logstash" as LS
+    database "OpenSearch" as OS
+}
+
+rectangle "MSSQL" {
+    database "COP/MAC" as DB
+}
+
+User --> WPF
+WPF --> WS : WCF
+WS --> COPFN
+COPFN --> COPDB
+COPDB --> DB : Volanie procedury
+
+COPFN --> ISearch : Vyhladavanie
+ServiceOpenSearch ..|> ISearch
+ServiceOpenSearch --> OS : Query (text/filtre)
+
+LS --> DB : Synchronizacia udajov (JDBC)
+LS --> OS : Indexovanie a aktualizacia
+
+note bottom of OS
+  Vyhladavaci index
+end note
+
+@enduml
