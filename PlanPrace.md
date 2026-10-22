@@ -334,7 +334,7 @@ Pre ohraničený prototyp je vhodná kombinácia:
 
 ---
 
-# Čo merať
+## Čo merať
 
 | Oblasť | Odporúčané metriky |
 | --- | --- |
@@ -350,7 +350,7 @@ Pre ohraničený prototyp je vhodná kombinácia:
 
 ---
 
-# Otázky pre diplomovú prácu
+## Otázky pre diplomovú prácu
 
 Hneď na začiatku stanoviť  otázky `(???)`:
 
@@ -359,3 +359,33 @@ Hneď na začiatku stanoviť  otázky `(???)`:
 3. **Do akej miery vyhľadávacie úložiská odľahčujú MSSQL po započítaní synchronizácie a fallbackov?**
 4. **Aký vplyv má synchronizačné oneskorenie na správnosť a úplnosť výsledkov?**
 5. **Za akých podmienok je vlastná implementácia výhodnejšia než OpenSearch alebo priame databázové vyhľadávanie?**
+
+## Poznámky k stretnutiu 1
+
+1. Kritéria vyhľadávania (Klientské dáta):
+    - Rodné číslo
+    - IČO
+    - KlientId
+    - Meno a Priezvisko
+    - Ulica, popisné číslo, Mesto
+    - Cnum
+    - Tel. číslo
+    - email
+    - ifo
+
+2. Kroky
+      - Vytvoriť projekt (.NET Aspire)
+      - spojazdniť OpenSearch
+      - vytvoriť indexy a json dokumenty
+      - Select dát z databázy
+      - naplniť DB
+      - Napojiť .NET službu a dotiahnuť do nej dáta
+
+3. Implementácia Open Search
+      - Domyslieť a zahrnúť fallback do služieb
+      - Premyslieť zmenu údajov (Odchytávať zmeny samostatne v službách, alebo dorovnávať z databázy? poprípade trigger?)
+      - Domyslieť spôsob vyhľadávania po každom kliknutí  
+
+Užitočné nástroje na Banchmark napr:
+
+- .NET Benchmark
