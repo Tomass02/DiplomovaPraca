@@ -1,15 +1,16 @@
 <Solution>
-  <Folder Name="/OpenSearchImplementation/">
-    <File Path="OpenSearchImplementation/OpenSearch.md" />
-    <File Path="OpenSearchImplementation/OpenSearchDiagram.png" />
-    <File Path="OpenSearchImplementation/OpenSearchDiagram.puml" />
-    <File Path="OpenSearchImplementation/OpenSearchSequential.png" />
-    <File Path="OpenSearchImplementation/OpenSearchSequential.puml" />
+  <Folder Name="/Documentation/">
+    <File Path="Documentation/BasicDiagram.puml" />
+    <File Path="Documentation/PlanPrace.md" />
+    <File Path="Documentation/README.md" />
   </Folder>
-  <Folder Name="/Solution Items/">
-    <File Path="BasicDiagram.puml" />
-    <File Path="PlanPrace.md" />
-    <File Path="README.md" />
+  <Folder Name="/Documentation/OpenSearchImplementation/">
+    <File Path="Documentation/OpenSearchImplementation/OpenSearch.md" />
+    <File Path="Documentation/OpenSearchImplementation/OpenSearchDiagram.png" />
+    <File Path="Documentation/OpenSearchImplementation/OpenSearchDiagram.puml" />
+    <File Path="Documentation/OpenSearchImplementation/OpenSearchSequential.png" />
+    <File Path="Documentation/OpenSearchImplementation/OpenSearchSequential.puml" />
   </Folder>
+  <Project Path="SearchEngine.OpenSearchIngest/SearchEngine.OpenSearchIngest.csproj" Id="b72c0512-50ad-4cdd-9403-d404e7c80a2c" />
   <Project Path="SearchEngine/SearchEngine.csproj" />
 </Solution>
