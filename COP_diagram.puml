@@ -1,0 +1,160 @@
+@startuml
+title Vyhľadávanie klienta - KlientSearchUcVM.SearchKlientAsync
+
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+
+actor "Zamestnanec" as U
+participant "COP_Wpf\nKlientSearchUcVM" as VM
+participant "COP_Wpf\nServices.Klient.ServiceAgent" as SA
+participant "COP_WS\nKlient.asmx (WebService)" as WS
+participant "COP_Functions\nFuncs.Klient" as FN
+participant "COP_Database\nDB.Klient" as DB
+database "MAC DB\n(pSearchKlient,\npSearchKlientByAdresa)" as SQL
+
+U -> VM : Zadá filter a stlačí "Hľadať"
+VM -> VM : SearchKlient()\nClearKlient()\nRunAsyncAction(SearchKlientAsync)
+
+== Príprava ==
+VM -> VM : Vynulovanie Statics\n(H_KLIENT, H_PRODUKTY, H_UCET_INFO, ...)\nRozpracovaneUveryManager.ResetKlient()
+alt KlientFilter je prázdny
+    VM --> U : Nič sa nevyhľadáva
+else Filter vyplnený
+    VM -> VM : ZapisLog(VyhladanieKlienta)
+    VM -> VM : Úprava filtra:\nCNUM PadLeft(6,'0')\nCisloUctu PadLeft(10,'0')\nRC doplní '/'\nICO FixIco()\nKlientID PadLeft(10,'0')\nnastavenie isDoplnujuciPopis
+
+    opt CisloKarty zadané
+        VM -> SA : Karta.VratUdajeKarty(cisloKarty)
+        SA --> VM : rodnecislo
+        VM -> VM : filter.RodneCislo = rodnecislo\nZobrazDetailKarty = true\nisExactSearch = true
+    end
+
+    == Rýchly popis (CNUM / KlientID / RC) ==
+    opt isDoplnujuciPopis
+        VM -> SA : KlientiByFilter(filter)
+        SA -> WS : SOAP KlientiByFilter(filter, allParams)
+        WS -> FN : KlientiByFilter(filter, allParams)
+        FN -> FN : VratKlientaByProcedureSearch(ico, rc, klientID,\ncnum, tel, email, ulica, cDomu, ifo)
+        FN -> DB : VratKlientaByProcedureSearch(...)
+        DB -> SQL : pSearchKlient(...)
+        SQL --> DB : vKlient[]
+        DB --> FN : List<vKlient>
+        FN --> WS : List<KlientClass>
+        WS --> SA : KlientClass[]
+        SA --> VM : List<KlientClass>
+        VM -> VM : PopisVysledkuVyhladavania\n_klientDoplnujuciPopisNazov\n_klientIdDoplnujuciPopis\n_klientExactTyp
+    end
+
+    == Hlavné vyhľadávanie ==
+    alt AdresaTyp ∈ {Z, Y, X, A}
+        VM -> VM : Validácia (ulica, č.domu, mesto, štát)
+        opt Validácia OK
+            VM -> SA : ZoznamKlientovByAdresa(filter, isExactSearch)
+            SA -> WS : SOAP ZoznamKlientovByAdresa
+            WS -> FN : ZoznamKlientovByAdresa(filter, exact)
+            FN -> DB : VratKlientaByAdresaSearch(typ, ulica, cDomu, mesto, štát, exact)
+            DB -> SQL : pSearchKlientByAdresa(...)
+            SQL --> DB : vKlient[]
+            DB --> FN : List<vKlient>
+            loop každý nájdený klient
+                FN -> DB : Adresy, Kontakty, Zástupcovia,\nKontaktné osoby, KUV, PEP\n(podľa klient_id)
+                DB --> FN : detail
+            end
+            opt AdresaTyp == "X"
+                FN -> FN : Ponechá len PO (nie FO)
+            end
+            FN --> WS : List<KlientClass>
+            WS --> SA : KlientClass[]
+            SA --> VM : klienti
+        end
+    else Ostatné filtre
+        VM -> VM : AdresaUlica = null, AdresaCDomu = null
+        VM -> SA : ZoznamKlientovByFilter(filter, isExactSearch)
+        SA -> WS : SOAP ZoznamKlientovByFilter
+        WS -> FN : ZoznamKlientovByFilter(filter, exact)
+        loop podľa vyplnených polí\n(KlientID, CNUM, RC, ICO, IFO, Názov,\nCisloUctu, CisloUveru, Tel, Email, Adresa)
+            alt KlientID/CNUM/RC/ICO/IFO/Tel/Email/Adresa
+                FN -> DB : VratKlientaByProcedureSearch(...)
+                DB -> SQL : pSearchKlient(...)
+                SQL --> DB : vKlient[]
+                DB --> FN : List<vKlient>
+            else NazovKlienta
+                FN -> DB : VratKlientaByNazov()
+                DB -> SQL : SELECT podľa názvu
+                SQL --> DB : zoznam
+                DB --> FN : zoznam
+            else CisloUctu
+                FN -> DB : VratKlientaByCisloUctu()
+                DB -> SQL : SELECT
+                SQL --> DB : klient
+            else CisloUveru
+                FN -> DB : VratKlientaByCisloUver()
+                DB -> SQL : SELECT
+                SQL --> DB : klient
+            end
+        end
+        FN -> FN : Odstránenie null,\nfilter podľa KlientTyp
+        FN --> WS : List<KlientClass>
+        WS --> SA : KlientClass[]
+        SA --> VM : klienti
+    end
+
+    VM -> VM : Ak je zadané len ICO:\nzoradenie podľa ICO desc
+
+    opt Configuration.IsTest a zadaný identifikátor
+        VM -> SA : VratKlientaSBKByIdentifikator()
+        SA -> WS : SOAP VratKlientaSBKByIdentifikator
+        WS -> FN : KlientSBKByFilter(identifikator)
+        FN -> DB : VratKlientaByProcedureSearchSBK()
+        DB -> SQL : pSearchKlientSBK
+        SQL --> DB : pSearchKlientSBKResult
+        DB --> FN : result
+        FN --> WS : KlientSBKClass
+        WS --> SA : KlientClass
+        SA --> VM : pridanie do zoznamu klientov
+    end
+
+    == Kontrola čítačky OP ==
+    opt H_PARSED_OP != null
+        VM -> SA : VratZoznamKlientovByRC(RC z OP)
+        SA -> WS : SOAP VratZoznamKlientovByRC
+        WS -> FN : VratZoznamKlientovByRC
+        FN -> DB : dotaz na klientov
+        DB --> FN : klienti
+        FN --> WS : List<KlientClass>
+        WS --> SA : klienti
+        SA --> VM : klienti
+        VM -> VM : Porovnanie DokladCislo s číslom z OP\n→ upozornenie / návrh úpravy údajov
+    end
+
+    == Spracovanie výsledku ==
+    alt Nájdený presne 1 klient
+        VM -> VM : Klient = výsledok
+        VM -> SA : ZapisatKlientPrezeranieByEmployee()
+        SA -> WS : SOAP zápis prezerania
+        WS -> FN : ZapisKlientPrezeranie
+        FN -> DB : INSERT KLIENT_PREZERANIE_ZAMESTNANCI
+        DB -> SQL : INSERT
+        VM -> VM : Mediator.FunctionMainKlientClassChanged(klientID)
+        opt ZobrazDetailKarty
+            VM -> VM : FunctionChangePage("UcetPlatobnaKarta")
+        end
+    else Nájdených viac klientov
+        loop každý klient
+            opt KlientTyp == 12
+                VM -> SA : VratZoznamZastupcovKlientaByKlientIDKlientClass()
+                SA -> WS : SOAP
+                WS -> FN : VratZoznamZastupcovKlientaByKlientID
+                FN -> DB : dotaz
+                DB --> FN : zástupcovia
+                FN --> VM : zástupcovia
+            end
+        end
+        VM -> VM : populateKlients() → Models.Klient.KlientClass
+        VM --> U : Zobrazenie zoznamu v gride (Klienti)
+    else Nenájdený
+        VM --> U : BackgroungVisibility = Visible\n(správa "nenájdený")
+    end
+end
+
+@enduml

@@ -5,6 +5,7 @@
     <File Path="Documentation/README.md" />
   </Folder>
   <Folder Name="/Documentation/OpenSearchImplementation/">
+    <File Path="COP_diagram.puml" />
     <File Path="Documentation/OpenSearchImplementation/OpenSearch.md" />
     <File Path="Documentation/OpenSearchImplementation/OpenSearchDiagram.png" />
     <File Path="Documentation/OpenSearchImplementation/OpenSearchDiagram.puml" />

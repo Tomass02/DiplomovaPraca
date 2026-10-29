@@ -1,15 +1,23 @@
 string containerImage_OpenSearch = "opensearchproject/opensearch";
 string containerImage_OpenSearch_Tag = "3";
+
+//open search dashboard
 string containerImage_OpenSearchDashboard = "opensearchproject/opensearch-dashboards";
 string containerImage_OpenSearchDashboard_Tag = "3";
 string aspire_container_runtime = "docker";
+
+//logstash
+//containerImage_LogStash_Image = "gitlab.pkb.sk:5050/prima/pbi/logstash";
+//containerImage_LogStash_Tag = "9.0.1";
 
 // Prima banka local development for getting container images from gitlab.pkb.sk private container registry
 if (Environment.UserDomainName == "PKB")
 {
     aspire_container_runtime = "podman";
     containerImage_OpenSearch = "gitlab.pkb.sk:5050/prima/pbi/opensearch";
+    containerImage_OpenSearchDashboard = "gitlab.pkb.sk:5050/prima/pbi/opensearch-dashboards";
     containerImage_OpenSearch_Tag = "latest";
+    containerImage_OpenSearchDashboard_Tag = "latest";
 }
 
 Environment.SetEnvironmentVariable("ASPIRE_CONTAINER_RUNTIME", aspire_container_runtime);
