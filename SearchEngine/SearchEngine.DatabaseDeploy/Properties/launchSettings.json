@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SearchEngine.DatabaseDeploy": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -2,6 +2,9 @@
   "profiles": {
     "SearchEngine.OpenSearchIngest": {
       "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
     }
   }
 }

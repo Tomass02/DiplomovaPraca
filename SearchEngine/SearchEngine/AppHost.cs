@@ -58,4 +58,13 @@ builder.AddContainer(name: "opensearch-dashboards", image: containerImage_OpenSe
     .WithHttpEndpoint(port: 5601, targetPort: 5601, name: "UI")
     .WithLifetime(ContainerLifetime.Persistent);
 
+// ***************** SQL Server ***************************
+var sqlPassword = builder.AddParameter("sql-password", secret: true);
+
+var sqlServer = builder.AddSqlServer("sqlserver", password: sqlPassword)
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var searchDb = sqlServer.AddDatabase("searchenginedb");
+
+
 builder.Build().Run();

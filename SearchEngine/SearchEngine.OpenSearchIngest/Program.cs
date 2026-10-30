@@ -1,5 +1,10 @@
-﻿using OpenSearch.Client;
+﻿using Microsoft.Extensions.Hosting;
+using OpenSearch.Client;
 using OpenSearch.Net;
+
+var hostBuilder = Host.CreateApplicationBuilder(args);
+hostBuilder.AddServiceDefaults();
+using var host = hostBuilder.Build();
 
 var openSearchUri = Environment.GetEnvironmentVariable("OPENSEARCH__URI") ?? "http://localhost:9200";
 var indexName = Environment.GetEnvironmentVariable("OPENSEARCH__INDEX") ?? "demo-documents";
