@@ -1,0 +1,34 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../README.md" />
+  </Folder>
+  <Folder Name="/Documentation/">
+    <File Path="../Documentation/BasicDiagram.puml" />
+    <File Path="../Documentation/PlanPrace.md" />
+  </Folder>
+  <Folder Name="/Documentation/OpenSearchImplementation/">
+    <File Path="../Documentation/OpenSearchImplementation/OpenSearch.md" />
+    <File Path="../Documentation/OpenSearchImplementation/OpenSearchDiagram.png" />
+    <File Path="../Documentation/OpenSearchImplementation/OpenSearchDiagram.puml" />
+    <File Path="../Documentation/OpenSearchImplementation/OpenSearchSequential.png" />
+    <File Path="../Documentation/OpenSearchImplementation/OpenSearchSequential.puml" />
+  </Folder>
+  <Folder Name="/Documentation/ProcesVyhladavania/">
+    <File Path="../Documentation/ProcesVyhladavania/COP_diagram.puml" />
+    <File Path="../Documentation/ProcesVyhladavania/ProcesVyhladavania.md" />
+  </Folder>
+  <Folder Name="/Documentation/ProcesVyhladavania/Scripts/">
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptBANKA.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptCISELNIKY.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptCOP.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptIMPORT_AS_PC.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptMAC.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptPS.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptUVEX.ipynb" />
+    <File Path="../Documentation/ProcesVyhladavania/Scripts/scriptVYPISY.ipynb" />
+  </Folder>
+  <Project Path="SearchEngine.DatabaseDeploy/SearchEngine.DatabaseDeploy.csproj" Id="a73e0112-1cd5-49c3-94a3-63973c047527" />
+  <Project Path="SearchEngine.OpenSearchIngest/SearchEngine.OpenSearchIngest.csproj" Id="b72c0512-50ad-4cdd-9403-d404e7c80a2c" />
+  <Project Path="SearchEngine.ServiceDefaults/SearchEngine.ServiceDefaults.csproj" Id="1d7cef26-bf49-4de2-bfef-2d44ba2fa751" />
+  <Project Path="SearchEngine/SearchEngine.AppHost.csproj" />
+</Solution>
