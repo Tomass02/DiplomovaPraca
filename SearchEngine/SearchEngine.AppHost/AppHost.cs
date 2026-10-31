@@ -88,4 +88,8 @@ builder.AddProject<Projects.SearchEngine_DatabaseDeploy>(name: "database-deploy"
     .WithReference(sqlServer)
     .WaitFor(sqlServer);
 
+builder.AddProject<Projects.SearchEngine_ServiceClientSearch>(name: "ServiceClientSearch")
+    .WaitFor(sqlServer)
+    .WaitFor(openSearchInstance);
+
 builder.Build().Run();
