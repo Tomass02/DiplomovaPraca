@@ -6,10 +6,10 @@ var hostBuilder = Host.CreateApplicationBuilder(args);
 hostBuilder.AddServiceDefaults();
 using var host = hostBuilder.Build();
 
-var openSearchUri = Environment.GetEnvironmentVariable("OPENSEARCH__URI") ?? "http://localhost:9200";
-var indexName = Environment.GetEnvironmentVariable("OPENSEARCH__INDEX") ?? "demo-documents";
-var username = Environment.GetEnvironmentVariable("OPENSEARCH__USERNAME");
-var password = Environment.GetEnvironmentVariable("OPENSEARCH__PASSWORD");
+var openSearchUri = Environment.GetEnvironmentVariable("OPENSEARCH_URI");
+var indexName = Environment.GetEnvironmentVariable("OPENSEARCH_INDEX");
+var username = Environment.GetEnvironmentVariable("OPENSEARCH_USERNAME");
+var password = Environment.GetEnvironmentVariable("OPENSEARCH_PASSWORD");
 
 var settings = new ConnectionSettings(new Uri(openSearchUri));
 

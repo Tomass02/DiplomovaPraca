@@ -1,0 +1,4 @@
+- pipeline.id: klient_startup
+  path.config: /usr/share/logstash/pipeline/klient_startup.conf
+- pipeline.id: klient
+  path.config: /usr/share/logstash/pipeline/klient.conf
