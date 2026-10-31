@@ -30,5 +30,5 @@
   <Project Path="SearchEngine.DatabaseDeploy/SearchEngine.DatabaseDeploy.csproj" Id="a73e0112-1cd5-49c3-94a3-63973c047527" />
   <Project Path="SearchEngine.OpenSearchIngest/SearchEngine.OpenSearchIngest.csproj" Id="b72c0512-50ad-4cdd-9403-d404e7c80a2c" />
   <Project Path="SearchEngine.ServiceDefaults/SearchEngine.ServiceDefaults.csproj" Id="1d7cef26-bf49-4de2-bfef-2d44ba2fa751" />
-  <Project Path="SearchEngine/SearchEngine.AppHost.csproj" />
+  <Project Path="SearchEngine.AppHost/SearchEngine.AppHost.csproj" />
 </Solution>

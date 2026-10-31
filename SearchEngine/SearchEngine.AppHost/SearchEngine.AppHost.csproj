@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SearchEngine.DatabaseDeploy\SearchEngine.DatabaseDeploy.csproj" />
     <ProjectReference Include="..\SearchEngine.OpenSearchIngest\SearchEngine.OpenSearchIngest.csproj" />
   </ItemGroup>
 
