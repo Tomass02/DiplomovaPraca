@@ -28,14 +28,24 @@ const int OpenSearchHostPort = 9201;
 const int OpenSearchApiContainerPort = 9200;
 const int OpenSearchPerfAnalyzerPort = 9600;
 const int OpenSearchDashboardsPort = 5601;
+const string OpenSearchIndexName = "klient";
+const string SqlJdbcConnectionString = "jdbc:sqlserver://sqlserver:1433;databaseName=master;encrypt=false;trustServerCertificate=true";
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+// ***************** SQL Server ***************************
+var sqlPassword = builder.AddParameter("sql-password", secret: true);
+
+var sqlServer = builder.AddSqlServer("sqlserver", password: sqlPassword)
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
 
 // ***************** OpenSearch ***************************
 var opensearchUsername = builder.AddParameter("opensearch-username");
 var opensearchPassword = builder.AddParameter("opensearch-password", secret: true);
 
 var openSearchInstance = builder.AddContainer(name: OPEN_SEARCH_CONTAINER_NAME, image: containerImage_OpenSearch, tag: containerImage_OpenSearch_Tag)
+    .WaitFor(sqlServer)
     .WithEnvironment(name: "OPENSEARCH_USERNAME", parameter: opensearchUsername)
     .WithEnvironment(name: "OPENSEARCH_PASSWORD", parameter: opensearchPassword)
     .WithEnvironment(name: "discovery.type", value: "single-node")
@@ -47,12 +57,22 @@ var openSearchInstance = builder.AddContainer(name: OPEN_SEARCH_CONTAINER_NAME, 
     .WithLifetime(ContainerLifetime.Persistent)
     .WithVolume(name: "opensearch-data", target: "/usr/share/opensearch/data");
 
+var databaseDeploy = builder.AddProject<Projects.SearchEngine_DatabaseDeploy>(name: "database-deploy")
+    .WithEnvironment(name: "DB_DEPLOY_SQL_SERVER", value: "sqlserver")
+    .WithEnvironment(name: "DB_DEPLOY_SQL_DATABASE", value: "master")
+    .WithEnvironment(name: "DB_DEPLOY_CONNECTION_STRING", sqlServer.Resource.ConnectionStringExpression)
+    .WithEnvironment(name: "GENERATE_DATA", value: "true")
+    .WithReference(sqlServer)
+    .WaitFor(sqlServer);
+
 var openSearchIngest = builder.AddProject<Projects.SearchEngine_OpenSearchIngest>(name: "opensearch-ingest")
     .WaitFor(openSearchInstance)
+    .WaitFor(databaseDeploy)
     .WithEnvironment(name: "OPENSEARCH_URI", value: "http://localhost:" + OpenSearchHostPort)
-    .WithEnvironment(name: "OPENSEARCH_INDEX", value: "demo-documents")
+    .WithEnvironment(name: "OPENSEARCH_INDEX", value: OpenSearchIndexName)
     .WithEnvironment(name: "OPENSEARCH_USERNAME", parameter: opensearchUsername)
-    .WithEnvironment(name: "OPENSEARCH_PASSWORD", parameter: opensearchPassword);
+    .WithEnvironment(name: "OPENSEARCH_PASSWORD", parameter: opensearchPassword)
+    .WithEnvironment(name: "DB_DEPLOY_CONNECTION_STRING", sqlServer.Resource.ConnectionStringExpression);
 
 builder.AddContainer(name: "opensearch-dashboards", image: containerImage_OpenSearchDashboard, tag: containerImage_OpenSearchDashboard_Tag)
     .WaitFor(openSearchIngest)
@@ -63,13 +83,6 @@ builder.AddContainer(name: "opensearch-dashboards", image: containerImage_OpenSe
     .WithHttpEndpoint(port: OpenSearchDashboardsPort, targetPort: OpenSearchDashboardsPort, name: "UI")
     .WithLifetime(ContainerLifetime.Persistent);
 
-// ***************** SQL Server ***************************
-var sqlPassword = builder.AddParameter("sql-password", secret: true);
-
-var sqlServer = builder.AddSqlServer("sqlserver", password: sqlPassword)
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
-
 // ***************** Logstash ***************************
 _ = builder.AddContainer(name: "logstash", image: containerImage_LogStash_Image, tag: containerImage_LogStash_Tag)
     .WithDockerfile("./logstash")
@@ -77,18 +90,13 @@ _ = builder.AddContainer(name: "logstash", image: containerImage_LogStash_Image,
     .WaitFor(sqlServer)
     .WithEnvironment(name: "MSSQL_USER", value: "sa")
     .WithEnvironment(name: "MSSQL_PASSWORD", parameter: sqlPassword)
+    .WithEnvironment(name: "MSSQL_CONNECTION_STRING", value: SqlJdbcConnectionString)
+    .WithEnvironment(name: "OPENSEARCH_INDEX", value: OpenSearchIndexName)
     .WithEnvironment(name: "OPENSEARCH_URL", value: "http://" + OPEN_SEARCH_CONTAINER_NAME + ":" + OpenSearchApiContainerPort)
     .WithEnvironment(name: "XPACK_MONITORING_ENABLED", value: "false")
     .WithLifetime(ContainerLifetime.Persistent);
 
-builder.AddProject<Projects.SearchEngine_DatabaseDeploy>(name: "database-deploy")
-    .WithEnvironment(name: "DB_DEPLOY_SQL_SERVER", value: "sqlserver")
-    .WithEnvironment(name: "DB_DEPLOY_SQL_DATABASE", value: "master")
-    .WithEnvironment(name: "DB_DEPLOY_CONNECTION_STRING", sqlServer.Resource.ConnectionStringExpression)
-    .WithReference(sqlServer)
-    .WaitFor(sqlServer);
-
-builder.AddProject<Projects.SearchEngine_ServiceClientSearch>(name: "ServiceClientSearch")
+builder.AddProject<Projects.ServiceClientSearch>(name: "ServiceClientSearch")
     .WaitFor(sqlServer)
     .WaitFor(openSearchInstance);
 
