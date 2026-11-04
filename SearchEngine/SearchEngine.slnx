@@ -3,6 +3,7 @@
     <Project Path="SearchEngine.ServiceClientSearch/ServiceClientSearch.Application/ServiceClientSearch.Application.csproj" Id="f09ea0a1-cfc7-41a3-867b-23504dcd244b" />
     <Project Path="SearchEngine.ServiceClientSearch/ServiceClientSearch.Domain/ServiceClientSearch.Domain.csproj" Id="69749a6b-c8f4-4e3a-bbde-333e04112d4b" />
     <Project Path="SearchEngine.ServiceClientSearch/ServiceClientSearch.Infrastructure/ServiceClientSearch.Infrastructure.csproj" Id="5aa6de2f-2538-4e05-9739-d415f16a47ef" />
+    <Project Path="SearchEngine.ServiceClientSearch/ServiceClientSearch.Tests/ServiceClientSearch.Tests.csproj" Id="24024f47-16ae-4386-9d81-810d6193c8a9" />
     <Project Path="SearchEngine.ServiceClientSearch/ServiceClientSearch/ServiceClientSearch.csproj" Id="84b4f432-4849-42d1-a469-0a48e3231d85" />
   </Folder>
   <Folder Name="/Solution Items/">
