@@ -12,5 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SearchEngine.ServiceDefaults\SearchEngine.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\ServiceClientSearch.Application\ServiceClientSearch.Application.csproj" />
+    <ProjectReference Include="..\ServiceClientSearch.Infrastructure\ServiceClientSearch.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

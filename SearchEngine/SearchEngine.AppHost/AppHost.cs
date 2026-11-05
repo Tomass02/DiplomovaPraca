@@ -98,6 +98,10 @@ _ = builder.AddContainer(name: "logstash", image: containerImage_LogStash_Image,
 
 builder.AddProject<Projects.ServiceClientSearch>(name: "ServiceClientSearch")
     .WaitFor(sqlServer)
-    .WaitFor(openSearchInstance);
+    .WaitFor(openSearchInstance)
+    .WithEnvironment(name: "OpenSearch__Uri", value: "http://localhost:" + OpenSearchHostPort)
+    .WithEnvironment(name: "OpenSearch__Index", value: OpenSearchIndexName)
+    .WithEnvironment(name: "OpenSearch__Username", parameter: opensearchUsername)
+    .WithEnvironment(name: "OpenSearch__Password", parameter: opensearchPassword);
 
 builder.Build().Run();

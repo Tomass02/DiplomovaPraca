@@ -1,28 +1,57 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+﻿using ServiceClientSearch;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace SearchEngine.ServiceClientSearch
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddServiceModelServices();
+builder.Services.AddServiceModelMetadata();
+builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
+
+builder.Services.AddTransient<ServiceClientSearch.ServiceClientSearch>();
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
+
+var app = builder.Build();
+
+app.UseServiceModel(serviceBuilder =>
 {
-    public class Program
+    serviceBuilder.AddService<ServiceClientSearch.ServiceClientSearch>(serviceOptions =>
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+        serviceOptions.DebugBehavior.IncludeExceptionDetailInFaults = app.Environment.IsDevelopment();
+    });
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-}
+    var basicHttpBinding = new BasicHttpBinding()
+    {
+        Name = "BasicHttpBinding_Http",
+        MaxReceivedMessageSize = 30000000 - 1,
+        MessageEncoding = WSMessageEncoding.Text,
+        TextEncoding = Encoding.UTF8,
+        Security = new BasicHttpSecurity()
+        {
+            Mode = BasicHttpSecurityMode.None
+        }
+    };
+
+    var basicHttpsBinding = new BasicHttpBinding()
+    {
+        Name = "BasicHttpBinding_Http",
+        MaxReceivedMessageSize = 30000000 - 1, //default for IIS 
+        MessageEncoding = WSMessageEncoding.Text,
+        TextEncoding = Encoding.UTF8,
+        Security = new BasicHttpSecurity()
+        {
+            Mode = BasicHttpSecurityMode.Transport
+        }
+    };
+
+    serviceBuilder.AddServiceEndpoint<ServiceClientSearch.ServiceClientSearch, IServiceClientSearch>(basicHttpBinding, "/SearchClient.svc");
+    serviceBuilder.AddServiceEndpoint<ServiceClientSearch.ServiceClientSearch, IServiceClientSearch>(basicHttpsBinding, "/SearchClient.svc");
+
+    var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
+    serviceMetadataBehavior.HttpGetEnabled = true;
+    serviceMetadataBehavior.HttpsGetEnabled = true;
+});
+
+app.Run();
