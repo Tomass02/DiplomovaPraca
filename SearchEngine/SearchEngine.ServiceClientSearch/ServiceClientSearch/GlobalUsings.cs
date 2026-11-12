@@ -1,0 +1,11 @@
+﻿global using CoreWCF;
+global using CoreWCF.Channels;
+global using CoreWCF.Configuration;
+global using CoreWCF.Description;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.Extensions.DependencyInjection;
+global using ServiceClientSearch.Application;
+global using ServiceClientSearch.Infrastructure;
+global using System;
+global using System.Linq;
+global using System.Threading.Tasks;

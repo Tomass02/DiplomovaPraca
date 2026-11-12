@@ -4,3 +4,4 @@ bin
 obj
 *.sql
 Documentation/ProcesVyhladavania/Scripts/*
+*.jar

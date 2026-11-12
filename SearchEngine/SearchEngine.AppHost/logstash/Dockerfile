@@ -9,7 +9,7 @@ RUN logstash-plugin install logstash-output-opensearch
 
 COPY --chown=1000:0 config/*.yml /usr/share/logstash/config/
 COPY --chown=1000:0 drivers/mssql-jdbc-13.6.0.jre11.jar /usr/share/logstash/drivers/mssql-jdbc.jar
-COPY --chown=1000:0 pipelines/mssql.conf /usr/share/logstash/pipeline/mssql.conf
+COPY --chown=1000:0 pipelines/*.conf /usr/share/logstash/pipeline/
 
 RUN chmod 0644 /usr/share/logstash/config/*.yml /usr/share/logstash/pipeline/*.conf /usr/share/logstash/drivers/*.jar
 
