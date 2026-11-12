@@ -48,3 +48,27 @@ ich do OpenSearch. Index tak slúži na vyhľadávanie, zatiaľ čo MSSQL zostá
 zdrojom údajov pre synchronizáciu a záložné vyhľadávanie.
 
 ![Sekvenčný diagram vyhľadávania v OpenSearch](OpenSearchSequential.png)
+
+## Inkrementálna synchronizácia klientov cez Change Tracking
+
+Pipeline `SearchEngine.AppHost/logstash/pipelines/klient.conf` používa SQL Server
+Change Tracking nad tabuľkou `[MAC].[dbo].[KLIENT]`.
+
+- interval spúšťania je `*/5 * * * * *` (každých 5 sekúnd),
+- posledná spracovaná verzia sa ukladá ako `last_sync_version` cez
+  `:sql_last_value` do súboru
+  `/usr/share/logstash/data/klient_last_sync_version.yml`,
+- dotaz používa `CHANGETABLE(CHANGES [MAC].[dbo].[KLIENT], last_sync_version)`,
+- pri štarte kontroluje `CHANGE_TRACKING_MIN_VALID_VERSION` a ak je uložená
+  verzia príliš stará, posunie sa na bezpečnú minimálnu hodnotu,
+- ak sa medzi dvoma behmi nezmení `CHANGE_TRACKING_CURRENT_VERSION()`,
+  dotaz nevráti žiadny riadok a do OpenSearch sa nepošle nič.
+
+Spracovanie zmien:
+
+- `I`/`U` (insert/update): dokument sa indexuje akciou `update`
+  s `doc_as_upsert => true`,
+- `D` (delete): dokument sa odstráni akciou `delete`.
+
+Identifikátor dokumentu ostáva `%{klientId}|%{cnum}`, takže zmeny vždy
+prepíšu alebo odstránia správny záznam v indexe.
